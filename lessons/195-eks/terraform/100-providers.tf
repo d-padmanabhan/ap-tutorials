@@ -1,9 +1,9 @@
 provider "aws" {
-  region = local.region
+  region = "us-east-1"
 }
 
 terraform {
-  required_version = ">= 1.0"
+  required_version = ">= 1.8"
 
   required_providers {
     aws = {

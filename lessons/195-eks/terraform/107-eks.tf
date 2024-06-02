@@ -1,5 +1,5 @@
-resource "aws_iam_role" "eks" {
-  name = "${local.env}-${local.eks_name}-eks-cluster"
+resource "aws_iam_role" "eks_role" {
+  name = "${local.eks_name}-${local.env}-eks-cluster-role"
 
   assume_role_policy = <<POLICY
 {
@@ -17,13 +17,13 @@ resource "aws_iam_role" "eks" {
 POLICY
 }
 
-resource "aws_iam_role_policy_attachment" "eks" {
+resource "aws_iam_role_policy_attachment" "eks_role_policy_attachment" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-  role       = aws_iam_role.eks.name
+  role       = aws_iam_role.eks_role.name
 }
 
 resource "aws_eks_cluster" "eks" {
-  name     = "${local.env}-${local.eks_name}"
+  name     = "${local.eks_name}-${local.env}-${local.eks_version}-${local.region_short_name}"
   version  = local.eks_version
   role_arn = aws_iam_role.eks.arn
 
@@ -32,8 +32,8 @@ resource "aws_eks_cluster" "eks" {
     endpoint_public_access  = true
 
     subnet_ids = [
-      aws_subnet.private_zone1.id,
-      aws_subnet.private_zone2.id
+      aws_subnet.private_az1.id,
+      aws_subnet.private_az2.id
     ]
   }
 
