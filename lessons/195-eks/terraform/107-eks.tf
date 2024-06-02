@@ -1,5 +1,9 @@
+################################################################################
+## IAM Role for the EKS Cluster
+################################################################################
+
 resource "aws_iam_role" "eks_role" {
-  name = "${local.eks_name}-${local.env}-eks-cluster-role"
+  name = "${local.product_name}-${local.eks_name}-${local.env}-eks-cluster-role"
 
   assume_role_policy = <<POLICY
 {
@@ -17,30 +21,41 @@ resource "aws_iam_role" "eks_role" {
 POLICY
 }
 
+###############################################################################
+# Attach the AmazonEKSClusterPolicy managed policy to the EKS Cluster IAM Role
+###############################################################################
 resource "aws_iam_role_policy_attachment" "eks_role_policy_attachment" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
   role       = aws_iam_role.eks_role.name
 }
 
-resource "aws_eks_cluster" "eks" {
-  name     = "${local.eks_name}-${local.env}-${local.eks_version}-${local.region_short_name}"
-  version  = local.eks_version
-  role_arn = aws_iam_role.eks.arn
+################################################################################
+## EKS Cluster
+################################################################################
+# resource "aws_eks_cluster" "eks" {
+#   name     = "${local.eks_name}-${local.env}-${local.eks_version}-${local.region_short_name}"
+#   version  = local.eks_version
+#   role_arn = aws_iam_role.eks_role.arn
 
-  vpc_config {
-    endpoint_private_access = false
-    endpoint_public_access  = true
+#   vpc_config {
+#     # Enable private endpoint access for the EKS cluster
+#     endpoint_private_access = false
+#     # Enable public endpoint access for the EKS cluster
+#     endpoint_public_access = true
 
-    subnet_ids = [
-      aws_subnet.private_az1.id,
-      aws_subnet.private_az2.id
-    ]
-  }
+#     subnet_ids = [
+#       aws_subnet.private_az1.id,
+#       aws_subnet.private_az2.id
+#     ]
+#   }
 
-  access_config {
-    authentication_mode                         = "API"
-    bootstrap_cluster_creator_admin_permissions = true
-  }
+#   # Configuration block for the cluster access settings
+#   access_config {
+#     # Authentication mode for accessing the cluster API
+#     authentication_mode = "API"
+#     # Grant admin permissions to the user who created the cluster
+#     bootstrap_cluster_creator_admin_permissions = true
+#   }
 
-  depends_on = [aws_iam_role_policy_attachment.eks]
-}
+#   depends_on = [aws_iam_role_policy_attachment.eks_role_policy_attachment]
+# }

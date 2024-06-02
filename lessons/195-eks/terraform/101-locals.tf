@@ -1,5 +1,5 @@
 locals {
-  product_name      = "cfn"
+  product_name      = "cfn-eks"
   product_lifecycle = "sbx"
   env               = local.product_lifecycle
   region            = "us-east-1"
@@ -7,7 +7,7 @@ locals {
   az2               = "us-east-1b"
   eks_name          = "demo"
   eks_version       = "1.29"
-  vpc_name          = local.product_name-local.env-vpc-local.region_short_name
+  vpc_name          = "${local.product_name}-${local.env}-vpc-${local.region_short_name}"
 
   # A mapping of AWS region codes to shorter aliases for ease of reference and use in resource naming or tagging.
   region_short_name_lookup = {
@@ -24,7 +24,7 @@ locals {
   }
 
   # Lookup to find the region alias based on the current AWS region.
-  region_short_name = lookup(local.region_short_name_lookup, data.aws_region.current.name, "")
+  region_short_name = lookup(local.region_short_name_lookup, data.aws_region.current_region.name, "")
 
   # # Maps a number of desired availability zones to the corresponding list of AZ identifiers.
   # az_count_to_identifiers = {
